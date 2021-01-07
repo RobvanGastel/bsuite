@@ -68,7 +68,10 @@ class ActorCritic(base.Agent):
 
   @tf.function
   def _sample_policy(self, inputs: tf.Tensor) -> tf.Tensor:
-    policy, _ = self._network(inputs)
+    print("inputs ", inputs)
+    x = tf.cast(inputs, tf.float64)
+    policy, _ = self._network(x)
+
     action = policy.sample()
     return tf.squeeze(action)
 
@@ -87,9 +90,13 @@ class ActorCritic(base.Agent):
 
     with tf.GradientTape() as tape:
       # Build actor and critic losses.
-      policies, values = snt.BatchApply(self._network)(observations)
-      _, bootstrap_value = self._network(final_observation)
+      x = tf.cast(observations, tf.float64)
+      policies, values = snt.BatchApply(self._network)(x)
+      x_final_ob = tf.cast(final_observation, tf.float64)
+      _, bootstrap_value = self._network(x_final_ob)
 
+      rewards = tf.cast(rewards, tf.float64)
+      discounts = tf.cast(discounts, tf.float64)
       critic_loss, (advantages, _) = trfl.td_lambda(
           state_values=values,
           rewards=rewards,

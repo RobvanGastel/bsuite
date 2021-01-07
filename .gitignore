@@ -7,3 +7,6 @@ pyvenv.cfg
 
 # IDE files.
 .vscode
+
+# compiled
+__pycache__
